@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>GetMyWebsite – Enquiry Automation Demo</title>
+<style>
+:root{--bg:#f4f6fb;--card:#fff;--text:#12172a;--muted:#6b7390;--line:#dde2f0;--accent:#5b5bf0;--ok:#16a34a;--run:#f59e0b;--soft:#eef0ff;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0d1020;--card:#171b31;--text:#eef0ff;--muted:#8d95b8;--line:#2a3050;--soft:#222850;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0d1020;--card:#171b31;--text:#eef0ff;--muted:#8d95b8;--line:#2a3050;--soft:#222850;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;padding:16px}
+h1{font-size:18px;margin:0 0 4px}
+.sub{color:var(--muted);font-size:13px;margin-bottom:14px}
+.grid{display:grid;gap:14px;grid-template-columns:1fr;max-width:1200px;margin:0 auto}
+@media(min-width:900px){.grid{grid-template-columns:1fr 1fr 1.1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;max-width:100%}
+.card h2{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 10px}
+label{display:block;font-size:12px;color:var(--muted);margin:8px 0 3px}
+input,textarea{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--text);font:inherit;font-size:14px}
+textarea{resize:none;height:64px}
+button{margin-top:12px;width:100%;padding:11px;border:0;border-radius:9px;background:var(--accent);color:#fff;font-weight:600;font-size:14px;cursor:pointer}
+button:disabled{opacity:.5;cursor:default}
+.node{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;background:var(--bg);transition:.3s}
+.node .ic{width:30px;height:30px;border-radius:8px;background:var(--soft);display:grid;place-items:center;font-size:15px}
+.node .t{font-size:13px;font-weight:600}.node .d{font-size:11px;color:var(--muted)}
+.node .st{margin-left:auto;width:18px;height:18px;border-radius:50%;border:2px solid var(--line);transition:.3s}
+.node.run{border-color:var(--run);box-shadow:0 0 0 3px rgba(245,158,11,.18)}
+.node.run .st{border-color:var(--run);border-top-color:transparent;animation:sp .7s linear infinite}
+.node.done{border-color:var(--ok)}
+.node.done .st{background:var(--ok);border-color:var(--ok);position:relative}
+.node.done .st::after{content:"✓";color:#fff;font-size:11px;position:absolute;inset:0;display:grid;place-items:center}
+@keyframes sp{to{transform:rotate(360deg)}}
+.link{width:2px;height:16px;background:var(--line);margin:0 0 0 24px;transition:.3s}
+.link.on{background:var(--ok)}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{text-align:left;color:var(--muted);font-weight:600;padding:6px;border-bottom:1px solid var(--line)}
+td{padding:6px;border-bottom:1px solid var(--line);max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+tr.new td{animation:fl 1.6s ease}
+@keyframes fl{from{background:rgba(22,163,74,.25)}to{background:transparent}}
+.sheetwrap{overflow-x:auto}
+.phone{margin:14px auto 0;width:230px;max-width:100%;border:7px solid #1b1f33;border-radius:30px;background:var(--bg);min-height:250px;padding:10px;position:relative}
+.phone .bar{width:60px;height:5px;background:#1b1f33;border-radius:5px;margin:0 auto 10px}
+.msg{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:9px;font-size:12px;line-height:1.4;opacity:0;transform:translateY(12px);transition:.5s}
+.msg.show{opacity:1;transform:none}
+.msg b{display:block;margin-bottom:3px;font-size:11px;color:var(--accent)}
+.toast{position:fixed;top:calc(12px + env(safe-area-inset-top,0px));left:50%;transform:translate(-50%,-90px);background:#12172a;color:#fff;padding:10px 16px;border-radius:12px;font-size:13px;transition:.5s;z-index:9;max-width:90%}
+.toast.show{transform:translate(-50%,0)}
+.foot{text-align:center;color:var(--muted);font-size:11px;margin-top:14px}
+</style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+<h1>Enquiry → Instant Follow-up</h1>
+<div class="sub">GetMyWebsite automation · fill the form and watch it run</div>
+<div class="grid">
+  <div class="card">
+    <h2>1 · Website contact form</h2>
+    <label>Name</label><input id="name" value="Rahul Sharma">
+    <label>Email</label><input id="email" value="rahul@example.com">
+    <label>Phone</label><input id="phone" value="+91 98765 43210">
+    <label>Message</label><textarea id="msg">I want a website for my cafe in Raipur.</textarea>
+    <button id="go">Submit enquiry</button>
+  </div>
+  <div class="card">
+    <h2>2 · Automation running</h2>
+    <div id="flow"></div>
+  </div>
+  <div class="card">
+    <h2>3 · Results</h2>
+    <div class="sheetwrap"><table><thead><tr><th>Name</th><th>Phone</th><th>Message</th><th>Time</th></tr></thead><tbody id="rows">
+      <tr><td>Priya</td><td>+91 90000 11111</td><td>Need branding</td><td>Yesterday</td></tr></tbody></table></div>
+    <div class="phone"><div class="bar"></div><div class="msg" id="reply"></div></div>
+  </div>
+</div>
+<div class="foot">Demo simulation of the workflow · replies here are templated, not live AI</div>
+<script>
+const steps=[
+ ["📝","Form submitted","Webhook trigger",900],
+ ["📊","Save to Google Sheet","Adds a new lead row",1300],
+ ["🤖","AI writes reply","Personalised to the message",1900],
+ ["✉️","Send reply","Email / WhatsApp to customer",1200],
+ ["🔔","Notify me","New-lead alert",900]];
+const flow=document.getElementById('flow');
+steps.forEach((s,i)=>{flow.insertAdjacentHTML('beforeend',(i?'<div class="link"></div>':'')+
+ `<div class="node"><div class="ic">${s[0]}</div><div><div class="t">${i+1}. ${s[1]}</div><div class="d">${s[2]}</div></div><div class="st"></div></div>`)});
+const nodes=[...flow.querySelectorAll('.node')],links=[...flow.querySelectorAll('.link')];
+const $=id=>document.getElementById(id),sleep=ms=>new Promise(r=>setTimeout(r,ms));
+$('go').onclick=async()=>{
+ const b=$('go');b.disabled=true;
+ nodes.forEach(n=>n.className='node');links.forEach(l=>l.className='link');
+ $('reply').className='msg';
+ const name=$('name').value.trim()||'there',first=name.split(' ')[0],msg=$('msg').value.trim();
+ for(let i=0;i<nodes.length;i++){
+  nodes[i].classList.add('run');if(i)links[i-1].classList.add('on');
+  await sleep(steps[i][3]);
+  nodes[i].className='node done';
+  if(i==1){const tr=document.createElement('tr');tr.className='new';
+   const t=new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+   [name,$('phone').value,msg,t].forEach(v=>{const td=document.createElement('td');td.textContent=v;tr.appendChild(td)});
+   $('rows').prepend(tr);}
+  if(i==3){const r=$('reply');
+   r.innerHTML='<b>GetMyWebsite · just now</b>';
+   const p=document.createElement('div');
+   p.textContent=`Hi ${first}, thanks for reaching out! I’ve noted your request: “${msg}” I’ll call you within 24 hours to discuss the next steps. – Soubhagya, GetMyWebsite`;
+   r.appendChild(p);r.classList.add('show');}
+  if(i==4){const t=$('toast');t.textContent=`🔔 New lead: ${name} – ${msg}`;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3500);}
+ }
+ b.disabled=false;b.textContent='Run again';
+};
+</script>
+</body>
+</html>
